@@ -30,13 +30,13 @@ module Cask
         vst3_plugindir:       "~/Library/Audio/Plug-Ins/VST3",
         screen_saverdir:      "~/Library/Screen Savers",
       }.freeze,
-      T::Hash[Symbol, String],
+      T::Hash[Symbol, T.nilable(String)],
     )
 
     sig { returns(T::Hash[Symbol, T.untyped]) }
     def self.defaults
       {
-        languages: LazyObject.new { MacOS.languages },
+        languages: LazyObject.new { ::OS::Mac.languages },
       }.merge(DEFAULT_DIRS).freeze
     end
 
@@ -197,6 +197,8 @@ module Cask
     end
 
     DEFAULT_DIRS.each_key do |dir|
+      next if dir == :fontdir
+
       define_method(dir) do
         T.bind(self, Config)
         explicit.fetch(dir, env.fetch(dir, default.fetch(dir)))
@@ -206,6 +208,16 @@ module Cask
         T.bind(self, Config)
         explicit[dir] = Pathname(path).expand_path
       end
+    end
+
+    sig { returns(T.any(String, Pathname)) }
+    def fontdir
+      get_dir_path(:fontdir)
+    end
+
+    sig { params(path: String).returns(Pathname) }
+    def fontdir=(path)
+      explicit[:fontdir] = Pathname(path).expand_path
     end
 
     sig { params(other: Config).returns(T.self_type) }
@@ -221,5 +233,14 @@ module Cask
         explicit:,
       }.to_json(*options)
     end
+
+    private
+
+    sig { params(dir: Symbol).returns(T.any(String, Pathname)) }
+    def get_dir_path(dir)
+      T.cast(explicit.fetch(dir, env.fetch(dir, default.fetch(dir))), T.any(String, Pathname))
+    end
   end
 end
+
+require "extend/os/cask/config"
