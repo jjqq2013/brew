@@ -3826,6 +3826,11 @@ command execution e.g. `$(cat file)`.
 : If set, Homebrew will refuse to read formulae or casks provided from file
   paths, e.g. `brew install ./package.rb`.
 
+`HOMEBREW_FORCE_API_AUTO_UPDATE`
+
+: If set, update the Homebrew API formula or cask data even if
+  `HOMEBREW_NO_AUTO_UPDATE` is set.
+
 `HOMEBREW_FORCE_BREWED_CA_CERTIFICATES`
 
 : If set, always use a Homebrew-installed `ca-certificates` rather than the
