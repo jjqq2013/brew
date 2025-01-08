@@ -83,6 +83,23 @@ BREW_FILE_DIRECTORY="$(quiet_cd "${0%/*}/" && pwd -P)"
 HOMEBREW_BREW_FILE="${BREW_FILE_DIRECTORY%/}/${0##*/}"
 HOMEBREW_PREFIX="${HOMEBREW_BREW_FILE%/*/*}"
 
+# We don't want the value of HOMEBREW_SHELL_NAME to change when running brew within brew.
+if [[ -z "${HOMEBREW_SHELL_NAME:-}" ]]
+then
+  HOMEBREW_SHELL_NAME="$(/bin/ps -p "${PPID}" -c -o comm= 2>/dev/null)"
+fi
+
+if [[ -n "${HOMEBREW_SHELL_NAME}" && "${HOMEBREW_SHELL_NAME}" = brew ]]
+then
+  if COMMAND_BREW="$(command -v brew)"
+  then
+    HOMEBREW_BREW_COMMAND="${COMMAND_BREW}"
+    HOMEBREW_SHELL_NAME="${COMMAND_BREW}"
+  fi
+else
+  HOMEBREW_BREW_COMMAND="${HOMEBREW_BREW_FILE}"
+fi
+
 # Default to / prefix if unset or the bin/brew file.
 if [[ -z "${HOMEBREW_PREFIX}" || "${HOMEBREW_PREFIX}" = "${HOMEBREW_BREW_FILE}" ]]
 then
@@ -212,10 +229,12 @@ done
 
 unset VAR VAR_NEW MANPAGE_VARS USED_BY_HOMEBREW_VARS
 
+export HOMEBREW_BREW_COMMAND
 export HOMEBREW_BREW_FILE
 export HOMEBREW_PREFIX
 export HOMEBREW_REPOSITORY
 export HOMEBREW_LIBRARY
+export HOMEBREW_SHELL_NAME
 export HOMEBREW_USER_CONFIG_HOME
 
 # set from user environment

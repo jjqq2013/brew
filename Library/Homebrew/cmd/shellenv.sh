@@ -1,7 +1,7 @@
 # Documentation defined in Library/Homebrew/cmd/shellenv.rb
 
 # HOMEBREW_CELLAR and HOMEBREW_PREFIX are set by extend/ENV/super.rb
-# HOMEBREW_REPOSITORY is set by bin/brew
+# HOMEBREW_REPOSITORY and HOMEBREW_SHELL_NAME is set by bin/brew
 # Leading colon in MANPATH prepends default man dirs to search path in Linux and macOS.
 # Please do not submit PRs to remove it!
 # shellcheck disable=SC2154
@@ -14,8 +14,6 @@ homebrew-shellenv() {
   if [[ -n "$1" ]]
   then
     HOMEBREW_SHELL_NAME="$1"
-  else
-    HOMEBREW_SHELL_NAME="$(/bin/ps -p "${PPID}" -c -o comm=)"
   fi
 
   if [[ -n "${HOMEBREW_MACOS}" ]] &&
