@@ -99,7 +99,7 @@ module Cask
 
     class BlockDSL
       # Allow accessing the URL associated with page contents.
-      module PageWithURL
+      class PageWithURL < String
         # Get the URL of the fetched page.
         #
         # ### Example
@@ -114,6 +114,11 @@ module Cask
         # @api public
         sig { returns(URI::Generic) }
         attr_accessor :url
+
+        def initialize(str, url)
+          super(str)
+          @url = url
+        end
       end
 
       sig {
@@ -138,10 +143,7 @@ module Cask
           result = ::Utils::Curl.curl_output("--fail", "--silent", "--location", @uri)
           result.assert_success!
 
-          page = result.stdout
-          page.extend PageWithURL
-          page.url = URI(@uri)
-
+          page = PageWithURL.new(result.stdout, URI(@uri))
           instance_exec(page, &@block)
         else
           instance_exec(&@block)

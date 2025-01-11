@@ -12,7 +12,7 @@ module SharedAudits
   def self.eol_data(product, cycle)
     @eol_data ||= T.let({}, T.nilable(T::Hash[String, T.untyped]))
     @eol_data["#{product}/#{cycle}"] ||= begin
-      out, _, status = Utils::Curl.curl_output("--location", "https://endoflife.date/api/#{product}/#{cycle}.json")
+      out, _, status = Utils::Curl.curl_output("--location", "https://endoflife.date/api/#{product}/#{cycle}.json").to_a
       json = JSON.parse(out) if status.success?
       json = nil if json&.dig("message")&.include?("Product not found")
       json
@@ -75,7 +75,7 @@ module SharedAudits
   def self.gitlab_repo_data(user, repo)
     @gitlab_repo_data ||= T.let({}, T.nilable(T::Hash[String, T.untyped]))
     @gitlab_repo_data["#{user}/#{repo}"] ||= begin
-      out, _, status = Utils::Curl.curl_output("https://gitlab.com/api/v4/projects/#{user}%2F#{repo}")
+      out, _, status = Utils::Curl.curl_output("https://gitlab.com/api/v4/projects/#{user}%2F#{repo}").to_a
       json = JSON.parse(out) if status.success?
       json = nil if json&.dig("message")&.include?("404 Project Not Found")
       json
@@ -89,7 +89,7 @@ module SharedAudits
     @gitlab_release_data[id] ||= begin
       out, _, status = Utils::Curl.curl_output(
         "https://gitlab.com/api/v4/projects/#{user}%2F#{repo}/releases/#{tag}", "--fail"
-      )
+      ).to_a
       JSON.parse(out) if status.success?
     end
   end
@@ -154,7 +154,7 @@ module SharedAudits
   sig { params(user: String, repo: String).returns(T.nilable(String)) }
   def self.bitbucket(user, repo)
     api_url = "https://api.bitbucket.org/2.0/repositories/#{user}/#{repo}"
-    out, _, status = Utils::Curl.curl_output("--request", "GET", api_url)
+    out, _, status = Utils::Curl.curl_output("--request", "GET", api_url).to_a
     return unless status.success?
 
     metadata = JSON.parse(out)
@@ -166,10 +166,10 @@ module SharedAudits
 
     return "Bitbucket repository too new (<30 days old)" if Date.parse(metadata["created_on"]) >= (Date.today - 30)
 
-    forks_out, _, forks_status = Utils::Curl.curl_output("--request", "GET", "#{api_url}/forks")
+    forks_out, _, forks_status = Utils::Curl.curl_output("--request", "GET", "#{api_url}/forks").to_a
     return unless forks_status.success?
 
-    watcher_out, _, watcher_status = Utils::Curl.curl_output("--request", "GET", "#{api_url}/watchers")
+    watcher_out, _, watcher_status = Utils::Curl.curl_output("--request", "GET", "#{api_url}/watchers").to_a
     return unless watcher_status.success?
 
     forks_metadata = JSON.parse(forks_out)

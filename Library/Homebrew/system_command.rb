@@ -427,6 +427,7 @@ class SystemCommand
     def to_ary
       [stdout, stderr, status]
     end
+    alias to_a to_ary
 
     sig { returns(T.nilable(T.any(Array, Hash))) }
     def plist

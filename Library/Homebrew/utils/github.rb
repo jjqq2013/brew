@@ -832,7 +832,7 @@ module GitHub
       "--silent", "--head", "--location",
       "--header", "Accept: application/vnd.github.sha",
       url_to("repos", user, repo, "commits", ref).to_s
-    )
+    ).to_a
 
     return unless status.success?
 
@@ -851,7 +851,7 @@ module GitHub
       "--silent", "--head", "--location",
       "--header", "Accept: application/vnd.github.sha",
       url_to("repos", user, repo, "commits", commit).to_s
-    )
+    ).to_a
 
     return true unless status.success?
     return true if output.blank?

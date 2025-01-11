@@ -16,7 +16,7 @@ module Repology
     url = "https://repology.org/api/v1/projects/#{last_package_in_response}?inrepo=#{repository}&outdated=1"
 
     output, errors, = Utils::Curl.curl_output(url.to_s, "--silent",
-                                              use_homebrew_curl: !Utils::Curl.curl_supports_tls13?)
+                                              use_homebrew_curl: !Utils::Curl.curl_supports_tls13?).to_a
     JSON.parse(output)
   rescue
     if Homebrew::EnvConfig.developer?
@@ -33,7 +33,7 @@ module Repology
     url = "https://repology.org/api/v1/project/#{name}"
 
     output, errors, = Utils::Curl.curl_output("--location", "--silent", url.to_s,
-                                              use_homebrew_curl: !Utils::Curl.curl_supports_tls13?)
+                                              use_homebrew_curl: !Utils::Curl.curl_supports_tls13?).to_a
 
     data = JSON.parse(output)
     { name => data }
