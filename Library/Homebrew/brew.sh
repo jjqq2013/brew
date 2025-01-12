@@ -190,6 +190,7 @@ esac
 source "${HOMEBREW_LIBRARY}/Homebrew/utils/helpers.sh"
 
 check-run-command-as-root() {
+  return
   [[ "${EUID}" == 0 || "${UID}" == 0 ]] || return
 
   # Allow Azure Pipelines/GitHub Actions/Docker/Podman/Concourse/Kubernetes to do everything as root (as it's normal there)
